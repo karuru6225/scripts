@@ -1,9 +1,13 @@
+#動作確認したのは以下のディスクでインストールし、wgetのみインストールした状態で実行
+#CentOS-6.4-x86_64-netinstall.iso
+#debian-6.0.6-amd64-netinst.iso
 
 set -ex
 
 FILES=`find /etc/ -regex ".*\(release\|version\)$"`
 OS=`find /etc/ -regex ".*\(release\|version\)$" -exec cat {} \;`
 
+#x86_64決め打ちなので注意
 if [[ ${OS} =~ .*CentOS\ release\ 6.* ]];then
 	wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
 	rpm -ivh rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
