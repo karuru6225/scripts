@@ -17,12 +17,12 @@ elif [[ ${OS} =~ .*CentOS\ release\ 5.* ]];then
 fi
 
 if [[ ${OS} =~ .*CentOS.* ]];then
-	yum -y install vim git yum-plugin-priorities man gcc gcc-c++ automake autoconf make curl dmidecode zlib-devel
+	yum -y install vim git yum-plugin-priorities man gcc gcc-c++ automake autoconf make openssl-devel.x86_64
 	rm -f rpmforge-release-*
 	sed -e "/gpgkey/i priority=1" /etc/yum.repos.d/CentOS-Base.repo
 	yum -y install tmux
-elif [[ ${FILES} =~ .*debian.* ]];then
-	aptitude -y install git vim tmux build-essential zlib1g-dev
+else
+	apt-get -y install git vim tmux build-essential libssl-dev
 fi
 
 cd /usr/local/
@@ -47,10 +47,8 @@ chgrp -R rbadmin ruby-build
 chmod -R g+rwxs ruby-build
 
 rbenv install 1.9.3-p392
-rbenv rehash
 rbenv global 1.9.3-p392
-gem install chef --no-ri --no-rdoc
-rbenv rehash
+gem install bundler chef --no-rdoc --no-ri
 
 cat > ~/.tmux.conf <<EOT
 setw -g window-status-current-fg green
