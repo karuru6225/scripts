@@ -19,7 +19,7 @@ gem "rails", "3.2.13"
 EOS
 
 bundle install --path vendor/bundle 2> /dev/null > /dev/null
-bundle exec rails new "$1" -d mysql --skip-bundle2> /dev/null > /dev/null
+bundle exec rails new "$1" -d mysql --skip-bundle 2> /dev/null > /dev/null
 rm -rf ${tmp_dir} 
 
 echo "Succeeded in creating rails project"
