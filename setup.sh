@@ -4,24 +4,37 @@
 
 set -ex
 
-FILES=`find /etc/ -regex ".*\(release\|version\)$"`
-OS=`find /etc/ -regex ".*\(release\|version\)$" -exec cat {} \;`
-
-#x86_64決め打ちなので注意
-if [[ ${OS} =~ .*CentOS\ release\ 6.* ]];then
-	wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-	rpm -ivh rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-elif [[ ${OS} =~ .*CentOS\ release\ 5.* ]];then
-	wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el5.rf.x86_64.rpm
-	rpm -ivh rpmforge-release-0.5.3-1.el5.rf.x86_64.rpm
+if [ -f /etc/redhat-release ]; then
+	UNAME=`cat /etc/redhat-release`
+	if [[ ${OS} =~ .*CentOS\ release\ 6.* ]];then
+	OS="centos"
+	VER="6"
+	elif [[ ${OS} =~ .*CentOS\ release\ 5.* ]];then
+	OS="centos"
+	VER="5"
+	fi
+elif [ -f /etc/debian_version ]; then
+	OS="debian"
+	VER=`cat /etc/debian_version`
 fi
 
-if [[ ${OS} =~ .*CentOS.* ]];then
-	yum -y install vim git yum-plugin-priorities man gcc gcc-c++ automake autoconf make openssl-devel.x86_64
+#x86_64決め打ちなので注意
+if [ ${OS} == "centos" -a ${VER} == "6" ];then
+	wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+	rpm -ivh rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
 	rm -f rpmforge-release-*
 	sed -e "/gpgkey/i priority=1" /etc/yum.repos.d/CentOS-Base.repo
+elif [ ${OS} == "centos" -a ${VER} == "5" ];then
+	wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el5.rf.x86_64.rpm
+	rpm -ivh rpmforge-release-0.5.3-1.el5.rf.x86_64.rpm
+	rm -f rpmforge-release-*
+	sed -e "/gpgkey/i priority=1" /etc/yum.repos.d/CentOS-Base.repo
+fi
+
+if [ "${OS}" == "centos" ]; then
+	yum -y install vim git yum-plugin-priorities man gcc gcc-c++ automake autoconf make openssl-devel.x86_64
 	yum -y install tmux
-else
+elif [ "${OS}" == "debian" ]; then
 	apt-get -y install git vim tmux build-essential libssl-dev
 fi
 
@@ -36,7 +49,9 @@ EOT
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="$RBENV_ROOT/bin:$PATH"
 eval "$(rbenv init -)"
-/usr/sbin/groupadd rbadmin
+if [ "`grep rbadmin /etc/group`" == "" ]; then
+	/usr/sbin/groupadd rbadmin
+fi
 chgrp -R rbadmin rbenv
 chmod -R g+rwxXs rbenv
 
@@ -79,6 +94,10 @@ export HISTSIZE=9999
 stty stop undef
 
 export EDITOR='vim'
+
+export RBENV_ROOT=/usr/local/rbenv
+export PATH="\$RBENV_ROOT/bin:\$PATH"
+eval "\$(rbenv init -)"
 
 alias ta='tmux has-session && tmux attach  || tmux ; exit'
 EOT
