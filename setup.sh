@@ -41,11 +41,15 @@ fi
 cd /usr/local/
 rm -rf rbenv
 git clone git://github.com/sstephenson/rbenv.git rbenv
+
+if [ "`grep RBENV_ROOT /etc/profile`" == "" ];then
 cat >> /etc/profile <<EOT
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="\$RBENV_ROOT/bin:\$PATH"
 eval "\$(rbenv init -)"
 EOT
+fi
+
 export RBENV_ROOT=/usr/local/rbenv
 export PATH="$RBENV_ROOT/bin:$PATH"
 eval "$(rbenv init -)"
@@ -65,6 +69,14 @@ rbenv install 1.9.3-p392
 rbenv global 1.9.3-p392
 gem install bundler chef --no-rdoc --no-ri
 
+if [ ! -d ~/.ssh ];then
+	mkdir ~/.ssh
+	chmod 700 ~/.ssh
+fi
+
+
+
+
 cat > ~/.tmux.conf <<EOT
 setw -g window-status-current-fg green
 setw -g window-status-current-bg black
@@ -79,7 +91,9 @@ bind    h select-pane -L
 bind    l select-pane -R
 EOT
 
+if [ "`grep 'add original setting' ~/.bashrc`" == "" ]; then
 cat >> ~/.bashrc <<EOT
+#add original setting
 #ヒストリー共有の設定
 function share_history {
     history -a
@@ -95,12 +109,13 @@ stty stop undef
 
 export EDITOR='vim'
 
-export RBENV_ROOT=/usr/local/rbenv
-export PATH="\$RBENV_ROOT/bin:\$PATH"
-eval "\$(rbenv init -)"
+#export RBENV_ROOT=/usr/local/rbenv
+#export PATH="\$RBENV_ROOT/bin:\$PATH"
+#eval "\$(rbenv init -)"
 
 alias ta='tmux has-session && tmux attach  || tmux ; exit'
 EOT
+fi
 
 cat > ~/.vimrc <<EOT
 " vim: set ts=4 sw=4 sts=0:
